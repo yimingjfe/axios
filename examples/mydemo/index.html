@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script type="text/javascript">
+    class Axios{
+      constructor(config){
+        this.config = config
+      }
+      request(){
+        console.log('我是request method'， this)
+      }
+    }
+
+    const bind = (fn, thisArg) => {
+      return (...args) => {
+        fn.apply(thisArg, args)
+      }
+    }
+
+    let context = new Axios({name: 'context'})
+    let instance = bind(Axios.prototype.request, context)
+    //执行拓展instance中的方法，axiso.post()中this指向的是context
+    extend(instance, Axios.prototype, context)
+  </script>
+</body>
+</html>

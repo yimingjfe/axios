@@ -84,7 +84,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // 拦截器是如何工作的?
 	  //XMLHttpRequest与适配器是如何工作的？
 	  utils.extend(instance, Axios.prototype, context);
-	  //要拿到构造函数继承的方法
+	  //要拿到构造函数继承的属性
 	  utils.extend(instance, context);
 	
 	  return instance;
@@ -109,7 +109,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	// Expose all/spread
 	axios.all = function all(promises) {
-	  console.log('是否与window的Promise相同', window.Promise === Promise)
 	  return Promise.all(promises);
 	};
 	axios.spread = __webpack_require__(25);
@@ -515,9 +514,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  config.method = config.method.toLowerCase();
 	
 	  // Hook up interceptors middleware
-	  var chain = [dispatchRequest, undefined];
+	  var chain = [dispatchRequest, undefined]; //为什么第二个是undefined
 	  var promise = Promise.resolve(config);
-	
+	  // 应该是执行请求的拦截器,拦截器数组后面的先执行；前面的后执行
 	  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
 	    chain.unshift(interceptor.fulfilled, interceptor.rejected);
 	  });
@@ -692,7 +691,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return new Promise(function dispatchXhrRequest(resolve, reject) {
 	    var requestData = config.data;
 	    var requestHeaders = config.headers;
-	
+	    // 为什么是formData的情况下，数据要浏览器设置
 	    if (utils.isFormData(requestData)) {
 	      delete requestHeaders['Content-Type']; // Let the browser set it
 	    }
@@ -716,17 +715,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    // HTTP basic authentication
+	    // 这是做什么的？
 	    if (config.auth) {
 	      var username = config.auth.username || '';
 	      var password = config.auth.password || '';
 	      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
 	    }
-	
+	    // 发起一个请求
+	    console.log(config.url, config.params, config.paramsSerializer)
 	    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
 	
 	    // Set the request timeout in MS
 	    request.timeout = config.timeout;
-	
 	    // Listen for ready state
 	    request[loadEvent] = function handleLoad() {
 	      if (!request || (request.readyState !== 4 && !xDomain)) {
@@ -742,6 +742,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	
 	      // Prepare the response
+	      // 下面的几个方法可以看一下
 	      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
 	      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
 	      var response = {
@@ -782,6 +783,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // Add xsrf header
 	    // This is only done if running in a standard browser environment.
 	    // Specifically not if we're in a web worker, or react-native.
+	    // 这是做什么的？貌似与cookie有关
 	    if (utils.isStandardBrowserEnv()) {
 	      var cookies = __webpack_require__(16);
 	
@@ -835,7 +837,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (typeof config.onUploadProgress === 'function' && request.upload) {
 	      request.upload.addEventListener('progress', config.onUploadProgress);
 	    }
-	
+	    // 取消部分先不管
 	    if (config.cancelToken) {
 	      // Handle cancellation
 	      config.cancelToken.promise.then(function onCanceled(cancel) {
@@ -878,6 +880,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = function settle(resolve, reject, response) {
 	  var validateStatus = response.config.validateStatus;
 	  // Note: status is not exposed by XDomainRequest
+	  console.log(validateStatus)
+	  console.log(response.status)
 	  if (!response.status || !validateStatus || validateStatus(response.status)) {
 	    resolve(response);
 	  } else {
@@ -1338,7 +1342,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {Promise} The Promise to be fulfilled
 	 */
 	module.exports = function dispatchRequest(config) {
-	  throwIfCancellationRequested(config);
+	  throwIfCancellationRequested(config); //这个是什么?
 	
 	  // Support baseURL config
 	  if (config.baseURL && !isAbsoluteURL(config.url)) {
